@@ -7,6 +7,13 @@ const app = express();
 
 app.set("view engine", "ejs");
 
+app.use(
+	bodyParser.urlencoded({
+		extended: true,
+	})
+);
+app.use(express.static("public"));
+
 mongoose.connect("mongodb://localhost/wikiDB", {
 	useNewUrlParser: true,
 	useUnifiedTopology: true,
@@ -19,20 +26,15 @@ const articleSchema = {
 
 const Article = mongoose.model("Article", articleSchema);
 
-app.use(
-	bodyParser.urlencoded({
-		extended: true,
-	})
-);
-app.use(express.static("public"));
+///////////////////////////// Requests Targetting all Articles /////////////////////////////
 
 app.route("/articles")
 	.get((req, res) => {
-		Article.find({}, (err, allArticles) => {
+		Article.find({}, (err, foundArticles) => {
 			if (err) {
 				res.send(err);
 			} else {
-				res.send(allArticles);
+				res.send(foundArticles);
 			}
 		});
 	})
@@ -57,6 +59,18 @@ app.route("/articles")
 			}
 		});
 	});
+
+///////////////////////////// Requests Targetting a Specific Article /////////////////////////////
+
+app.route("/articles/:articleTitle").get((req, res) => {
+	Article.findOne({ title: req.params.articleTitle }, (err, foundArticle) => {
+		if (!err) {
+			res.send(foundArticle);
+		} else {
+			res.send("No article matching that title was found.");
+		}
+	});
+});
 
 app.listen(3000, function () {
 	console.log("Server started on port 3000");

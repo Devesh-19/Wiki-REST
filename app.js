@@ -26,7 +26,15 @@ app.use(
 );
 app.use(express.static("public"));
 
-//TODO
+app.get("/articles", (req, res) => {
+	Article.find({}, (err, allArticles) => {
+		if (err) {
+			res.send(err);
+		} else {
+			res.send(allArticles);
+		}
+	});
+});
 
 app.listen(3000, function () {
 	console.log("Server started on port 3000");
